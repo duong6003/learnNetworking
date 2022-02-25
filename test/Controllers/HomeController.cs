@@ -25,8 +25,10 @@ namespace test.Controllers
                 Avatar = "sdasd"
             };
             var studentstring = JsonConvert.SerializeObject(some);
+            MultipartFormDataContent content = new();
+            content.Add();
             HttpMethod post = HttpMethod.Post;
-            (string? student, int? status) = post.SendRequestWithStringContent("https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/student");
+            (string? student, int? status) = post.SendRequestWithFormDataContent("https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/student");
             HttpMethod check = HttpMethod.Get;
             //(string? student, int? status) = post.SendRequestWithStringContent("https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/student", studentstring);
             return new OkObjectResult(student);
