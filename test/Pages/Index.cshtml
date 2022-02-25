@@ -16,6 +16,7 @@
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+    var url = document.querySelector("#url").nodeValue;
     $("#getApi").click(function(e) {
         e.preventDefault();
         $.ajax({
@@ -23,6 +24,7 @@
                 url: "/home/GetStudentRemote",
                 contentType: "application/json",
                 processData: false,
+                data: url,
                 success: function (entity) {
                     $("#destination").val = entity;
                 },

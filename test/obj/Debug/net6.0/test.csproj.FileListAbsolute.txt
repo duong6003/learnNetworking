@@ -31,3 +31,5 @@ C:\Duong\test\testweb\test\bin\Debug\net6.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Duong\test\testweb\test\obj\Debug\net6.0\test.csproj.CopyComplete
 C:\Duong\test\testweb\test\bin\Debug\net6.0\libman.json
 C:\Duong\test\testweb\test\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Duong\test\testweb\test\bin\Debug\net6.0\System.Net.Http.Formatting.dll
+C:\Duong\test\testweb\test\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
