@@ -2,8 +2,13 @@
 using Newtonsoft.Json;
 using System;
 using System.Net;
+<<<<<<< HEAD
 using System.Net.Http;
 using System.Threading.Tasks;
+=======
+using System.Net.Http.Headers;
+using System.Text;
+>>>>>>> 7988ebc2c5db73e76b0049e3574172676f3daf8b
 
 namespace test.Controllers
 {
@@ -15,10 +20,20 @@ namespace test.Controllers
     }
     public class Product
     {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        public string? Price { get; set; }
-        public string? Category { get; set; }
+        public Guid Id { get; set; }
+        public string? Title { get; set; }
+        public string? Detail { get; set; }
+        public string? Story { get; set; }
+        public List<ProductImage>? ProductImages { get; set; }
+        public string? NutriInfo { get; set; }
+        public double? PointFrom { get; set; }
+        public double? PointTo { get; set; }
+    }
+    public class ProductImage
+    {
+        public string? Path { get; set; }
+        public Guid? ProductId { get; set; }
+        public Product? Product { get; set; }
     }
     public class Repository{
         private HttpClient client;
@@ -72,21 +87,12 @@ namespace test.Controllers
             return response.StatusCode;
         }
     }
-    public class Data
+    public class DataReturn
     {
-        public static Student student = new Student()
-        {
-            Id = 69,
-            Name = "dasd",
-            Avatar = "sdasd"
-        };
-        public static Product product = new Product()
-        {
-            Id = 69,
-            Name = "dasd",
-            Price = "sdasd",
-            Category = "dasdad"
-        };
+
+        public Product? Data { get; set; }
+        public string? Message { get; set; }
+
     }
     public class HomeController : Controller
     {
@@ -95,29 +101,31 @@ namespace test.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult GetStudentRemote(string? url)
+        public async Task<IActionResult> GetStudentRemote(string? url)
         {
-            HttpClient client = new();
-            url = "https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/product/1";
-            Repository? repository = new Repository(client);
+            using HttpClient client = new();
+            url = "https://localhost:5067/api/Relations";
+            //MultipartFormDataContent content = new MultipartFormDataContent();
+            //content.Add(new StringContent("Văn"), "Name");
+           HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post,url);
+            IDictionary<string,object> keys = new Dictionary<string, object>();
+            string fileName = Path.GetFullPath(@"C:\Users\PC\Pictures\Jisoo_for_Marie_Claire_Korea_210914(1).jpg");
+            byte[] image = System.IO.File.ReadAllBytes(fileName);
+            IDictionary<string, object> content = new Dictionary<string, object>();
+            content.Add("Title", "Title");
+            content.Add("Detail", "Detail");
+            content.Add("Story", "Story");
+            content.Add("PointFrom", "11");
+            content.Add("PointTo", "22");
+            content.Add("ProductImages", image);
+            content.Add("NutriInfo", image);
+            message.CreateMessage(content);
+            AuthenticationHeaderValue token = AuthenticationHeaderValue.Parse("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
+            client.DefaultRequestHeaders.Add("Authentication", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
 
-            //Uri path = repository.CreateProductAsync(Data.product, url).Result;
-            //var result = repository.GetProductAsync(url).Result;
-            //var result = repository.DeleteProductAsync("27", url).Result;
-            Product? product = new()
-            {
-                Id = 1,
-                Name = "dasd",
-                Price = "sdasd",
-                Category = "dasdad"
-            };
-            Product? result = repository.UpdateProductAsync(product, url).Result;
+            var result = await client.SendAsync(message);
 
-            //HttpRequestMessage httpRequest = new(); 
-            //HttpMethod post = HttpMethod.Post;
-            //HttpMethod get = HttpMethod.Get;
-            //(string? student, int? status) = post.SendRequestWithFormDataContent("https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/student");
-            //(string? student, int? status) = post.SendRequestWithStringContent("https://621840fd1a1ba20cba9c4b7c.mockapi.io/api/student");
+            //(string response, int? statusCode) = HttpMethod.Post.SendRequestWithFormDataContent(url, content);
             return NoContent();
          } 
     }
