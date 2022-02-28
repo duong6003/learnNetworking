@@ -33,3 +33,14 @@ C:\Duong\test\testweb\test\bin\Debug\net6.0\libman.json
 C:\Duong\test\testweb\test\bin\Debug\net6.0\Newtonsoft.Json.dll
 C:\Duong\test\testweb\test\bin\Debug\net6.0\System.Net.Http.Formatting.dll
 C:\Duong\test\testweb\test\bin\Debug\net6.0\Newtonsoft.Json.Bson.dll
+F:\học\test\test\obj\Debug\net6.0\test.csproj.AssemblyReference.cache
+F:\học\test\test\obj\Debug\net6.0\test.GeneratedMSBuildEditorConfig.editorconfig
+F:\học\test\test\obj\Debug\net6.0\test.AssemblyInfoInputs.cache
+F:\học\test\test\obj\Debug\net6.0\test.AssemblyInfo.cs
+F:\học\test\test\obj\Debug\net6.0\test.csproj.CoreCompileInputs.cache
+F:\học\test\test\obj\Debug\net6.0\test.MvcApplicationPartsAssemblyInfo.cache
+F:\học\test\test\obj\Debug\net6.0\test.RazorAssemblyInfo.cache
+F:\học\test\test\obj\Debug\net6.0\test.RazorAssemblyInfo.cs
+F:\học\test\test\obj\Debug\net6.0\test.dll
+F:\học\test\test\obj\Debug\net6.0\ref\test.dll
+F:\học\test\test\obj\Debug\net6.0\test.pdb
