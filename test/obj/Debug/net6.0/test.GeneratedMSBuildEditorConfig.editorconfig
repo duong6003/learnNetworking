@@ -8,37 +8,37 @@ build_property.PlatformNeutralAssembly =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = test
 build_property.RootNamespace = test
-build_property.ProjectDir = F:\học\test\test\
+build_property.ProjectDir = C:\Duong\test\testweb\test\
 build_property.RazorLangVersion = 6.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = F:\học\test\test
+build_property.MSBuildProjectDirectory = C:\Duong\test\testweb\test
 build_property._RazorSourceGeneratorDebug = 
 
-[F:/học/test/test/Pages/Error.cshtml]
+[C:/Duong/test/testweb/test/Pages/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/Index.cshtml]
+[C:/Duong/test/testweb/test/Pages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/Privacy.cshtml]
+[C:/Duong/test/testweb/test/Pages/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Duong/test/testweb/test/Pages/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/_ViewImports.cshtml]
+[C:/Duong/test/testweb/test/Pages/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/_ViewStart.cshtml]
+[C:/Duong/test/testweb/test/Pages/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[F:/học/test/test/Pages/Shared/_Layout.cshtml]
+[C:/Duong/test/testweb/test/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-r8gis1x8ri

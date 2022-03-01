@@ -1,28 +1,19 @@
-﻿
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.StaticFiles;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.StaticFiles;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace test
 {
     public static class GeneralHelper
     {
-        private static readonly HttpClient HttpClient = new ();
+        private static readonly HttpClient HttpClient = new();
 
         public static async Task<(string responseData, int? responseStatusCode)> SendRequestAsync(this HttpRequestMessage httpRequestMessage, string endpointURL, IDictionary<string, object> headers)
         {
-            httpRequestMessage.Headers.Authorization = AuthenticationHeaderValue.Parse("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
-
             if (headers != null)
             {
                 foreach (KeyValuePair<string, object> header in headers)
@@ -32,7 +23,6 @@ namespace test
             }
             try
             {
-
                 using HttpResponseMessage httpResponseMessage = await HttpClient.SendAsync(httpRequestMessage).ConfigureAwait(false);
                 int responseStatusCode = (int)httpResponseMessage.StatusCode;
                 if (httpResponseMessage.Content != null)
@@ -53,13 +43,13 @@ namespace test
                 return (ex.Message, (int)HttpStatusCode.InternalServerError);
             }
         }
+
         public static (string responseData, int? responseStatusCode) SendRequestWithStringContent(this HttpMethod method, string endpointURL, string encodingData = null!, IDictionary<string, object> headers = null!, string mediaType = "application/json")
         {
             HttpRequestMessage httpRequestMessage = new(method, endpointURL);
             if (encodingData is not null)
             {
                 httpRequestMessage.Content = new StringContent(encodingData, Encoding.UTF8, mediaType);
-
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
@@ -73,9 +63,21 @@ namespace test
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
-        public static void CreateMessage(this HttpRequestMessage message, IDictionary<string,object> contents = null!, string mediaType = "application/json", string fileName = null!, IDictionary<string, object> headers = null!)
+        /// <summary>
+        /// Create the body and header for the http message to send
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="contents">
+        /// A content dictionary if the dictionary has 1 element and the key is empty, return a StringContent
+        /// </param>
+        /// <param name="headers">
+        /// Header of the http message
+        /// </param>
+        /// <param name="mediaType">
+        /// default string content type is json
+        /// </param>
+        public static void CustomHttpMessage(this HttpRequestMessage message, IDictionary<string, object> contents = null!, IDictionary<string, object> headers = null!, string mediaType = "application/json")
         {
-            message.Headers.Authorization = AuthenticationHeaderValue.Parse("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
             if (headers != null)
             {
                 foreach (KeyValuePair<string, object> header in headers)
@@ -86,39 +88,33 @@ namespace test
             // create an json content if content has one element
             if (contents is not null)
             {
-                //if (contents.Count == 1)
-                //{
-                //    object content = contents.ElementAt(0).Value;
-                //    if (content is string)
-                //    {
-                //        message.Content = new StringContent((string)content, Encoding.UTF8, mediaType);
-                //        return;
-                //    }
-                //    if (content is IFormFile)
-                //    {
-                //        IFormFile file = (IFormFile)content;
-                //        file.OpenReadStream();
-                //        message.Content = new StreamContent(file.OpenReadStream());
-                //        return;
-                //    }
-                //}
-
+                if (string.IsNullOrEmpty(contents.ElementAt(0).Key))
+                {
+                    KeyValuePair<string, object> stringContent = contents.ElementAt(0);
+                    if (string.IsNullOrEmpty(stringContent.Key) && stringContent.Value is string)
+                    {
+                        message.Content = new StringContent((string)stringContent.Value, Encoding.UTF8, mediaType);
+                        return;
+                    }
+                }
                 MultipartFormDataContent multipartFormData = new();
                 foreach (var keyPair in contents!)
                 {
                     if (keyPair.Value is byte[])
                     {
+                        multipartFormData.Add(new ByteArrayContent((byte[])keyPair.Value), keyPair.Key);
                     }
                     if (keyPair.Value is string)
                     {
-                        multipartFormData.Add(new StringContent((string)keyPair.Value, Encoding.UTF8, mediaType), (string)keyPair.Key);
+                        multipartFormData.Add(new StringContent((string)keyPair.Value, Encoding.UTF8, mediaType), keyPair.Key);
                     }
                 }
                 message.Content = multipartFormData;
             }
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="httpContext">
         /// Getting the current url of the request depends on whether you use Https or not?
@@ -155,7 +151,7 @@ namespace test
 
         public static async Task<string> UploadFile(this IFormFile requestFile, string folderPath)
         {
-            if(requestFile != null)
+            if (requestFile != null)
             {
                 string fileFullName = new Random().Next() + "_" + Regex.Replace(requestFile.FileName.Trim(), @"[^a-zA-Z0-9-_.]", "");
                 string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -171,7 +167,7 @@ namespace test
             return "";
         }
 
-        public static  string CreatePath(string pathName)
+        public static string CreatePath(string pathName)
         {
             string FileDic = pathName;
             string FilePath = Path.Combine("", FileDic);
@@ -227,7 +223,7 @@ namespace test
 
         public static bool PingIPDevice(this string targetHost, string data = "PingForTest")
         {
-            Ping pingSender = new ();
+            Ping pingSender = new();
             PingOptions options = new()
             {
                 DontFragment = true
