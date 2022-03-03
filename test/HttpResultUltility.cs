@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System.ComponentModel;
 using System.Net;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace test
 {
@@ -9,6 +11,7 @@ namespace test
         public T? Data { get; set; }
         public string? Message { get; set; }
     }
+
     public class HttpResultUltility<T>
     {
         public static async Task<(HttpResponseResult<T> result, int? statusCode)> GetHttpResponseResult(HttpClient client, HttpRequestMessage message)
@@ -17,15 +20,15 @@ namespace test
             {
                 using HttpResponseMessage response = await client.SendAsync(message).ConfigureAwait(false);
                 int responseStatusCode = (int)response.StatusCode;
-                
-                if(response.IsSuccessStatusCode is false) return (new HttpResponseResult<T>() { Message = "Request failed, check your uri or your http method"}, responseStatusCode);
-                
+
+                if (response.IsSuccessStatusCode is false) return (new HttpResponseResult<T>() { Message = "Request failed, check your uri or your http method" }, responseStatusCode);
+
                 if (response.Content != null)
                 {
                     HttpResponseResult<T> result = await response.Content.ReadAsAsync<HttpResponseResult<T>>().ConfigureAwait(false);
-                    return (result!, responseStatusCode); 
+                    return (result!, responseStatusCode);
                 }
-                return (null! , responseStatusCode);
+                return (null!, responseStatusCode);
             }
             catch (Exception ex)
             {
@@ -35,11 +38,13 @@ namespace test
             }
         }
     }
+
     public enum ContentFlags
     {
         FromFrom,
         FromBody
     }
+
     public class HttpContentHelper<T>
     {
         public static IDictionary<string, object> GenerateContent(T entity, ContentFlags flag)
@@ -59,5 +64,6 @@ namespace test
             }
             return content;
         }
+
     }
 }

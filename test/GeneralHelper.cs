@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
@@ -88,7 +89,7 @@ namespace test
             // create an json content if content has one element
             if (contents is not null)
             {
-                if (string.IsNullOrEmpty(contents.ElementAt(0).Key))
+                if (string.IsNullOrEmpty(contents.ElementAt(0).Key) | contents.Count == 1)
                 {
                     KeyValuePair<string, object> stringContent = contents.ElementAt(0);
                     if (string.IsNullOrEmpty(stringContent.Key) && stringContent.Value is string)
@@ -102,11 +103,21 @@ namespace test
                 {
                     if (keyPair.Value is byte[])
                     {
-                        multipartFormData.Add(new ByteArrayContent((byte[])keyPair.Value), keyPair.Key);
+                        multipartFormData.Add(new ByteArrayContent((byte[])keyPair.Value), keyPair.Key, "file");
                     }
                     if (keyPair.Value is string)
                     {
                         multipartFormData.Add(new StringContent((string)keyPair.Value, Encoding.UTF8, mediaType), keyPair.Key);
+                    }
+                    if (keyPair.Value is object)
+                    {
+                        if (keyPair.Value is IFormFile)
+                        {
+                            IFormFile file = (IFormFile)keyPair.Value;
+                            StreamContent streamContent = new StreamContent(file.OpenReadStream());
+                            streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+                            multipartFormData.Add(streamContent, file.Name, file.FileName); ;
+                        }
                     }
                 }
                 message.Content = multipartFormData;

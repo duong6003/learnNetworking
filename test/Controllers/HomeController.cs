@@ -58,14 +58,11 @@ namespace test.Controllers
         public Product? Product { get; set; }
     }
 
-    public class UserSendQuestionRequest
+    public class ShelfUploadRequest
     {
-        public string? FullName { get; set; }
-        public string? Phone { get; set; }
-        public string? QuestionType { get; set; }
-        public string? QuestionContent { get; set; }
+        public string? Name { get; set; }
+        public IList<IFormFile>? Images { get; set; }
     }
-
     public class HomeController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -81,27 +78,17 @@ namespace test.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetStudentRemote(string? url)
+        public async Task<IActionResult> GetStudentRemote(ShelfUploadRequest request)
         {
-            //string json = "{\"relationId\":\"08d9fb4e-ccdf-49f1-883f-5037a8501dc2\",\"age\": 22,\"height\": 168,\"weight\": 60,\"content\": \"test by new function\",\"point\": 22}";
-            //IDictionary<string, object> content = new Dictionary<string, object>();
-            //content.Add("", json);
-            UserSendQuestionRequest request = new()
-            {
-                FullName = "duong",
-                Phone = "0987654321",
-                QuestionType = "dễ",
-                QuestionContent = "tôi đẹp trai không"
-            };
-            //IDictionary<string, object> content = HttpContentHelper<UserSendQuestionRequest>.GenerateContent(request, ContentFlags.FromBody);
+            IDictionary<string, object> content = HttpContentHelper<ShelfUploadRequest>.GenerateContent(request, ContentFlags.FromFrom);
             IDictionary<string, object> header = new Dictionary<string,object>();
             header.Add("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
 
             HttpClient client = _httpClientFactory.CreateClient("client");
-            url = "https://localhost:5067/api/Products/GetAll";
-            using HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, url);
+            string url = "https://localhost:5067/api/Shelfs";
+            using HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, url);
 
-            message.CustomHttpMessage(null!, header);
+            message.CustomHttpMessage(content!, header);
             (HttpResponseResult<PaginationResponse<Product>> result, int? status) = await HttpResultUltility<PaginationResponse<Product>>.GetHttpResponseResult(client, message);
             return NoContent();
         }

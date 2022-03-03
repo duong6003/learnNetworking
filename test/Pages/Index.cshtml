@@ -1,37 +1,45 @@
 ﻿@page
-@model IndexModel
+@using test.Controllers
+@model ShelfUploadRequest
 @{
     ViewData["Title"] = "Home page";
 }
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <form action="">
-   <label for="lname">ApiUrl</label>
-   <input type="text" id = "url" name="lname"><br><br>
-   <input type="submit" id="getApi" value="Submit">
+    <form asp-action="GetStudentRemote" method="post" enctype="multipart/form-data">
+        <div class="row px-3 d-flex">
+            <label class="mb-1"><h6 class="mb-0 text-sm">Name</h6></label>
+            <input asp-for="Name" class="mb-4" type="text" name="name" placeholder="Enter a valid name...">
+        </div>
+        <div class="row px-3 d-flex">
+            <label class="mb-1"><h6 class="mb-0 text-sm">Image</h6></label>
+            <input asp-for="Images" name="image"><br><br>
+        </div>
+        <div class="row px-3 d-flex">
+            <input type="submit" id="submit" value="Submit">
+        </div>
     </form>
-    <div>
-        <p id="destination"></p>
-    </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-    var url = document.querySelector("#url").nodeValue;
-    $("#getApi").click(function(e) {
-        e.preventDefault();
-        $.ajax({
-                type: "POST",
-                url: "/home/GetStudentRemote",
-                contentType: "application/json",
-                processData: false,
-                data: url,
-                success: function (entity) {
-                    $("#destination").val = entity;
-                },
-                error: function () {
-                    
-                }
-            });
+    async function AJAXSubmit (oFormElement) {
+    var resultElement = oFormElement.elements.namedItem("result");
+    const formData = new FormData(oFormElement);
+
+    try {
+    const response = await fetch(oFormElement.action, {
+      method: 'POST',
+      body: formData
     });
-    
-</script>
+
+    if (response.ok) {
+      window.location.href = '/';
+    }
+
+    resultElement.value = 'Result: ' + response.status + ' ' + 
+      response.statusText;
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }  
+</script>*@
