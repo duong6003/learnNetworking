@@ -64,6 +64,7 @@ namespace test
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
+
         /// <summary>
         /// Create the body and header for the http message to send
         /// </summary>
@@ -77,203 +78,110 @@ namespace test
         /// <param name="mediaType">
         /// default string content type is json
         /// </param>
-        public static void CustomHttpMessage(this HttpRequestMessage message, IDictionary<string, object> contents = null!, IDictionary<string, object> headers = null!, string mediaType = "application/json")
+        public static async Task<(string responseData, int? responseStatusCode)> SendRequestWithObjectToMultipartFormDate(this HttpMethod method, string endpointURL, object sender, IDictionary<string, object> headers = null!, string mediaType = "application/json")
         {
-            if (headers != null)
+            HttpRequestMessage httpRequestMessage = new(method, endpointURL);
+            MultipartFormDataContent multipartFormData = new();
+            IDictionary<string, object> contents = HttpContentHelper<object>.GenerateContent(sender);
+            foreach (var keyPair in contents!)
             {
-                foreach (KeyValuePair<string, object> header in headers)
+                if (keyPair.Value is byte[])
                 {
-                    message.Headers.Add(header.Key, header.Value.ToString());
+                    multipartFormData.Add(new ByteArrayContent((byte[])keyPair.Value), keyPair.Key, "file");
                 }
-            }
-            // create an json content if content has one element
-            if (contents is not null)
-            {
-                if (string.IsNullOrEmpty(contents.ElementAt(0).Key) | contents.Count == 1)
+                else if (keyPair.Value is string || keyPair.Value is DateTime)
                 {
-                    KeyValuePair<string, object> stringContent = contents.ElementAt(0);
-                    if (string.IsNullOrEmpty(stringContent.Key) && stringContent.Value is string)
+                    multipartFormData.Add(new StringContent(keyPair.Value.ToString()!, Encoding.UTF8, mediaType), keyPair.Key);
+                }
+                else if (keyPair.Value is IFormFile || keyPair.Value is IEnumerable<IFormFile>)
+                {
+                    if (keyPair.Value is IFormFile)
                     {
-                        message.Content = new StringContent((string)stringContent.Value, Encoding.UTF8, mediaType);
-                        return;
+                        IFormFile file = (IFormFile)keyPair.Value;
+                        StreamContent streamContent = new StreamContent(file.OpenReadStream());
+                        streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+                        multipartFormData.Add(streamContent, file.Name, file.FileName);
                     }
-                }
-                MultipartFormDataContent multipartFormData = new();
-                foreach (var keyPair in contents!)
-                {
-                    if (keyPair.Value is byte[])
+                    IList<IFormFile> files = (keyPair.Value as IList<IFormFile>)!;
+                    foreach (IFormFile file in files)
                     {
-                        multipartFormData.Add(new ByteArrayContent((byte[])keyPair.Value), keyPair.Key, "file");
+                        StreamContent streamContent = new StreamContent(file.OpenReadStream());
+                        streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
+                        multipartFormData.Add(streamContent, file.Name, file.FileName);
                     }
-                    if (keyPair.Value is string)
-                    {
-                        multipartFormData.Add(new StringContent((string)keyPair.Value, Encoding.UTF8, mediaType), keyPair.Key);
-                    }
-                    if (keyPair.Value is object)
-                    {
-                        if (keyPair.Value is IFormFile)
-                        {
-                            IFormFile file = (IFormFile)keyPair.Value;
-                            StreamContent streamContent = new StreamContent(file.OpenReadStream());
-                            streamContent.Headers.ContentType = MediaTypeHeaderValue.Parse(file.ContentType);
-                            multipartFormData.Add(streamContent, file.Name, file.FileName); ;
-                        }
-                    }
-                }
-                message.Content = multipartFormData;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="httpContext">
-        /// Getting the current url of the request depends on whether you use Https or not?
-        /// </param>
-        /// <param name="useHttps">
-        /// Option to use Https (The parameter is taken from the UseHttps property in appsetting.json):
-        ///     There used: true
-        ///     Do not use: false
-        /// </param>
-        /// <returns></returns>
-        public static string GetBaseUrl(this HttpContext httpContext, bool useHttps)
-        {
-            if (useHttps)
-            {
-                return httpContext.Request.Scheme + "s://" + httpContext.Request.Host.Value;
-            }
-            else
-            {
-                return httpContext.Request.Scheme + "://" + httpContext.Request.Host.Value;
-            }
-        }
-
-        public static T MergeData<T>(this object newData, T originData)
-        {
-            foreach (PropertyInfo propertyInfo in newData.GetType().GetProperties())
-            {
-                if (propertyInfo.GetValue(newData, null) != null && originData!.GetType().GetProperties().Any(p => p.Name.Equals(propertyInfo.Name)))
-                {
-                    originData.GetType().GetProperty(propertyInfo.Name)!.SetValue(originData, propertyInfo.GetValue(newData, null));
-                }
-            }
-            return originData;
-        }
-
-        public static async Task<string> UploadFile(this IFormFile requestFile, string folderPath)
-        {
-            if (requestFile != null)
-            {
-                string fileFullName = new Random().Next() + "_" + Regex.Replace(requestFile.FileName.Trim(), @"[^a-zA-Z0-9-_.]", "");
-                string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                Directory.CreateDirectory(Path.Combine(webRootPath, folderPath)); // Tự động tạo dường dẫn thư mục nếu chưa có
-                using (var stream = new FileStream(Path.Combine(webRootPath, folderPath, fileFullName), FileMode.Create))
-                {
-                    await requestFile.CopyToAsync(stream);
-                    stream.Close();
-                }
-                return fileFullName;
-            }
-
-            return "";
-        }
-
-        public static string CreatePath(string pathName)
-        {
-            string FileDic = pathName;
-            string FilePath = Path.Combine("", FileDic);
-            return FilePath;
-        }
-
-        //public static async Task<bool> SendEmail(string from, string to, string subject, string body, SmtpClient client)
-        //{
-        //    MailMessage mail = new MailMessage(
-        //           from: from,
-        //           to: to,
-        //           subject: subject,
-        //           body: body
-        //           );
-
-        //    mail.BodyEncoding = System.Text.Encoding.UTF8;
-        //    mail.SubjectEncoding = System.Text.Encoding.UTF8;
-        //    mail.IsBodyHtml = true;
-        //    mail.ReplyToList.Add(new MailAddress(from));
-        //    mail.Sender = new MailAddress(from);
-        //    try
-        //    {
-        //        await client.SendMailAsync(mail);
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return false;
-        //    }
-        //}
-
-        public static (bool, string) DeleteFile(this string FileToDelete)
-        {
-            string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-            try
-            {
-                string fullPathToDelete = Path.Combine(webRootPath, FileToDelete);
-                if (File.Exists(fullPathToDelete))
-                {
-                    File.Delete(fullPathToDelete);
-                    return (true, "File deleted successfully!");
                 }
                 else
                 {
-                    return (false, "File no longer exists on the server!");
+                    try
+                    {
+
+                        IDictionary<string, object> properties = new Dictionary<string, object>();
+                        await keyPair.Value.GetComplexProperty(properties);
+                        MultipartContent content = new MultipartContent();
+                        int n = properties.Keys.Count;
+                        foreach(KeyValuePair<string,object> keyValuePair in properties)
+                        {
+                            content.Add(new StringContent((string)keyValuePair.Value));
+                        }
+                        httpRequestMessage.Content = content;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
                 }
             }
-            catch (IOException ioExp)
+            return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
+        }
+
+        public static async Task GetComplexProperty(this object property, IDictionary<string, object> propertyHash, string currentName = "")
+        {
+            PropertyInfo[] infos = property.GetType().GetProperties();
+            foreach (PropertyInfo info in infos)
             {
-                return (false, ioExp.Message);
+                currentName = string.IsNullOrEmpty(currentName) ? info.Name : currentName + "." + info.Name;
+
+                if (info.GetValue(property)!.CheckComplexProperty().Result == ComplexType.IsEntity)
+                {
+                    await info.GetValue(property)!.GetComplexProperty(propertyHash, currentName);
+                }
+                if (info.GetValue(property)!.CheckComplexProperty().Result == ComplexType.IsCollection)
+                {
+                    var entities = info.GetValue(property) as ICollection<object>;
+                    foreach(object entity in entities!)
+                    {
+                        propertyHash.Add(info.Name , info.GetValue(entity)!);
+                    }
+                }
+                propertyHash.Add(currentName, info.GetValue(property)!);
+                currentName = await currentName.PopLastSequence(".");
             }
+            return;
         }
 
-        public static bool PingIPDevice(this string targetHost, string data = "PingForTest")
+        public static Task<string> PopLastSequence(this string sequence, string sign)
         {
-            Ping pingSender = new();
-            PingOptions options = new()
+            if (string.IsNullOrEmpty(sequence)) return Task.FromResult("");
+            int index = sequence.LastIndexOf(sign);
+            if (index == -1)
             {
-                DontFragment = true
-            };
-            byte[] buffer = Encoding.ASCII.GetBytes(data);
-            PingReply reply = pingSender.Send(targetHost, 120, buffer, options);
-            if (reply.Status == IPStatus.Success)
-                return true;
-            return false;
-        }
-
-        public static bool ValidateIPv4(this string DeviceIP)
-        {
-            if (string.IsNullOrWhiteSpace(DeviceIP))
-                return false;
-            string[] splitValues = DeviceIP.Split('.');
-            if (splitValues.Length != 4)
-                return false;
-            return splitValues.All(r => byte.TryParse(r, out byte tempForParsing));
-        }
-
-        public static string GetMimeType(this string fileName)
-        {
-            new FileExtensionContentTypeProvider().TryGetContentType(fileName, out string? contentType);
-            return contentType ?? "application/octet-stream";
-        }
-
-        public static (bool flagCheckToken, JwtSecurityToken dataToken) ValidateToken(this string token)
-        {
-            JwtSecurityToken _ = new();
-            try
-            {
-                _ = new JwtSecurityTokenHandler().ReadJwtToken(token);
+                return Task.FromResult("");
             }
-            catch (Exception)
-            {
-                return (false, null!);
-            }
-            return (true, _);
+            sequence = sequence.Substring(0, index);
+            return Task.FromResult(sequence);
         }
-    }
+
+        public static Task<ComplexType> CheckComplexProperty(this object property)
+        {
+            IEnumerable<Attribute> complexAttributeMembers = property.GetType().GetCustomAttributes(typeof(IsComplexAttribute))!;
+            foreach (Attribute attribute in complexAttributeMembers)
+            {
+                if (attribute is IsComplexAttribute)
+                {
+                    IsComplexAttribute check = (IsComplexAttribute)attribute;
+                    return Task.FromResult(check.ComplexType);
+                }
+            }
+            return Task.FromResult(ComplexType.None);
+        }
 }

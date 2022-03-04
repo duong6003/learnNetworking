@@ -57,11 +57,17 @@ namespace test.Controllers
         public Guid? ProductId { get; set; }
         public Product? Product { get; set; }
     }
+    public class ProductImageTest
+    {
+        public string? Name { get; set; }
+        public string? Path { get; set; }
+    }
 
     public class ShelfUploadRequest
     {
-        public string? Name { get; set; }
-        public IList<IFormFile>? Images { get; set; }
+        [IsComplex(ComplexType.IsEntity)]
+        public ProductImageTest? ProductImageTest { get; set; }
+        //public IList<IFormFile>? Images { get; set; }
     }
     public class HomeController : Controller
     {
@@ -78,7 +84,7 @@ namespace test.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetStudentRemote(ShelfUploadRequest request)
+        public async Task<IActionResult> GetStudentRemote([FromBody]ShelfUploadRequest request)
         {
             IDictionary<string, object> content = HttpContentHelper<ShelfUploadRequest>.GenerateContent(request, ContentFlags.FromFrom);
             IDictionary<string, object> header = new Dictionary<string,object>();
@@ -89,7 +95,7 @@ namespace test.Controllers
             using HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, url);
 
             message.CustomHttpMessage(content!, header);
-            (HttpResponseResult<PaginationResponse<Product>> result, int? status) = await HttpResultUltility<PaginationResponse<Product>>.GetHttpResponseResult(client, message);
+            (HttpResponseResult<PaginationResponse<ShelfUploadRequest>> result, int? status) = await HttpResultUltility<PaginationResponse<ShelfUploadRequest>>.GetHttpResponseResult(client, message);
             return NoContent();
         }
     }

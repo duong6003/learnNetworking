@@ -1,8 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace test
 {
@@ -39,31 +36,19 @@ namespace test
         }
     }
 
-    public enum ContentFlags
-    {
-        FromFrom,
-        FromBody
-    }
-
     public class HttpContentHelper<T>
     {
-        public static IDictionary<string, object> GenerateContent(T entity, ContentFlags flag)
+        public static IDictionary<string, object> GenerateContent(T entity)
         {
             IDictionary<string, object> content = new Dictionary<string, object>();
-            if (flag.Equals(ContentFlags.FromFrom))
+
+            PropertyInfo[] propertyInfo = typeof(T).GetProperties();
+            foreach (PropertyInfo property in propertyInfo)
             {
-                PropertyInfo[] propertyInfo = typeof(T).GetProperties();
-                foreach (PropertyInfo property in propertyInfo)
-                {
-                    content.Add(property.Name, property.GetValue(entity)!);
-                }
+                content.Add(property.Name, property.GetValue(entity)!);
             }
-            else
-            {
-                content.Add("", JsonConvert.SerializeObject(entity));
-            }
+
             return content;
         }
-
     }
 }
