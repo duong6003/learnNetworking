@@ -86,7 +86,6 @@ namespace test.Controllers
         [HttpPost]
         public async Task<IActionResult> GetStudentRemote([FromBody]ShelfUploadRequest request)
         {
-            IDictionary<string, object> content = HttpContentHelper<ShelfUploadRequest>.GenerateContent(request, ContentFlags.FromFrom);
             IDictionary<string, object> header = new Dictionary<string,object>();
             header.Add("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjAwNTc5NzBjLWI3M2UtNGYxYi1hOGYwLWI3YmNjNzgwMmQ2YSIsIlBob25lIjoiMDk4NzY1NDMyMSIsImV4cCI6MTY0ODEwNDk3Mn0.Y_Aa2vRS4VUPr-lWcN350DK3iTp40VomuRMP0R1m5sU");
 
@@ -94,7 +93,6 @@ namespace test.Controllers
             string url = "https://localhost:5067/api/Shelfs";
             using HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, url);
 
-            message.CustomHttpMessage(content!, header);
             (HttpResponseResult<PaginationResponse<ShelfUploadRequest>> result, int? status) = await HttpResultUltility<PaginationResponse<ShelfUploadRequest>>.GetHttpResponseResult(client, message);
             return NoContent();
         }

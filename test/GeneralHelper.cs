@@ -64,20 +64,8 @@ namespace test
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
+        // -------------------------------------ở dưới này là code của e----------------------------------------------
 
-        /// <summary>
-        /// Create the body and header for the http message to send
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="contents">
-        /// A content dictionary if the dictionary has 1 element and the key is empty, return a StringContent
-        /// </param>
-        /// <param name="headers">
-        /// Header of the http message
-        /// </param>
-        /// <param name="mediaType">
-        /// default string content type is json
-        /// </param>
         public static async Task<(string responseData, int? responseStatusCode)> SendRequestWithObjectToMultipartFormDate(this HttpMethod method, string endpointURL, object sender, IDictionary<string, object> headers = null!, string mediaType = "application/json")
         {
             HttpRequestMessage httpRequestMessage = new(method, endpointURL);
@@ -119,7 +107,7 @@ namespace test
                         await keyPair.Value.GetComplexProperty(properties);
                         MultipartContent content = new MultipartContent();
                         int n = properties.Keys.Count;
-                        foreach(KeyValuePair<string,object> keyValuePair in properties)
+                        foreach (KeyValuePair<string, object> keyValuePair in properties)
                         {
                             content.Add(new StringContent((string)keyValuePair.Value));
                         }
@@ -148,9 +136,9 @@ namespace test
                 if (info.GetValue(property)!.CheckComplexProperty().Result == ComplexType.IsCollection)
                 {
                     var entities = info.GetValue(property) as ICollection<object>;
-                    foreach(object entity in entities!)
+                    foreach (object entity in entities!)
                     {
-                        propertyHash.Add(info.Name , info.GetValue(entity)!);
+                        propertyHash.Add(info.Name, info.GetValue(entity)!);
                     }
                 }
                 propertyHash.Add(currentName, info.GetValue(property)!);
@@ -184,4 +172,5 @@ namespace test
             }
             return Task.FromResult(ComplexType.None);
         }
+    }
 }
