@@ -64,7 +64,7 @@ namespace test
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
-        // -------------------------------------ở dưới này là code của e----------------------------------------------
+        // -------------------------------------Ở dưới này là code của e----------------------------------------------
 
         public static async Task<(string responseData, int? responseStatusCode)> SendRequestWithObjectToMultipartFormDate(this HttpMethod method, string endpointURL, object sender, IDictionary<string, object> headers = null!, string mediaType = "application/json")
         {
@@ -111,13 +111,14 @@ namespace test
                         {
                             content.Add(new StringContent((string)keyValuePair.Value));
                         }
-                        httpRequestMessage.Content = content;
+                        multipartFormData.Add(content);
                     }
                     catch (Exception ex)
                     {
                         throw new Exception(ex.Message);
                     }
                 }
+                httpRequestMessage.Content = multipartFormData;
             }
             return httpRequestMessage.SendRequestAsync(endpointURL, headers).Result;
         }
